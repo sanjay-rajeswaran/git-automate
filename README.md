@@ -3,8 +3,6 @@ This application listens for new github pull requests and executes the test case
 
 generated using Luminus version "3.0.6"
 
-FIXME
-
 ## Prerequisites
 
 You will need [Leiningen][1] 2.0 or above installed.
