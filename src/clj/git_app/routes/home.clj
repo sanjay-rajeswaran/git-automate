@@ -1,21 +1,12 @@
 (ns git-app.routes.home
-  (:require [git-app.layout :as layout]
-            [compojure.core :refer [defroutes GET POST]]
+  (:require [compojure.core :refer [defroutes GET POST]]
             [ring.util.http-response :as response]
-            [clojure.java.io :as io]
             [ring.util.response :refer [redirect]]
             [clojure.java.shell :as shell]
             [selmer.parser :refer [render-file]]
             [clojure.data.json :as json]
             [git-app.automate-functions :as automate-functions]
             [git-app.git-functions :as git-functions]))
-
-(defn home-page []
-  (layout/render
-    "home.html" {:docs (-> "docs/docs.md" io/resource slurp)}))
-
-(defn about-page []
-  (layout/render "about.html"))
 
 ; (defn git-function [data]
 ;   (println data)
@@ -44,6 +35,7 @@
 ;   )
 
 (defn automate [payload]
+
   (println "Entering Git Flow!!!")
   (let [branch_name (get-in payload [:pull_request :head :ref])]
     ; pull latest code from repo master branch
@@ -55,15 +47,11 @@
   (if-not (automate-functions/run-lein-eastwood)
     (if-not (automate-functions/run-lein-test)
       (automate-functions/create-jar payload)
-      ;(git-functions/post-pullrequest-comment (get-in payload [:pull_request :issue_url])))
       (git-functions/post-status (get-in payload [:pull_request :statuses_url]) "failure" "Initial build tests failed."))
     (git-functions/post-status (get-in payload [:pull_request :statuses_url]) "failure" "Initial build tests failed.")
-    ;(git-functions/post-pullrequest-comment (get-in payload [:pull_request :issue_url]))
   ))
 
 (defn git-post-pullrequest [data]
-
-  ;(println (data :payload))
 
   (let [payload (json/read-str (data :payload) :key-fn keyword)]
     (if (= (payload :action) "opened")
@@ -75,11 +63,6 @@
   {:status "200"})
 
 (defroutes home-routes
-  (GET "/" [] (home-page))
   (POST "/git" {params :params} (git-post-pullrequest params))
-  (GET "/about" [] (about-page))
   ;(GET "/github" [data] (git-function data))
-  ;(POST "/git" [action] (git-post-push [action]))
-  ;(POST "/git" [] :form-params [username :- String,
-  ;   password :- String] (git-post-push))
   )
