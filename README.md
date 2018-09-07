@@ -1,4 +1,5 @@
 # git-app
+This application listens for new github pull requests and executes the test cases and lint checks for a given branch from a repository. It updates the Status of the pull request based on the result of the tests.
 
 generated using Luminus version "3.0.6"
 
